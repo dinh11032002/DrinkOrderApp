@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "969894711575",
+    "project_id": "drinkorderapp-f2836",
+    "storage_bucket": "drinkorderapp-f2836.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:969894711575:android:a778835776525dc1816752",
+        "android_client_info": {
+          "package_name": "com.truongdinh.drinkorder"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9JO7IuVsYz0ewcLHWwal0tjEZYl4-ou8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
