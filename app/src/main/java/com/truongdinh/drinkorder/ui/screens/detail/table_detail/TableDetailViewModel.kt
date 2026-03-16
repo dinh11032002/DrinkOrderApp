@@ -103,9 +103,6 @@ class TableDetailViewModel(
                 // Cập nhật trạng thái bàn
                 updateTableStatus(tableId, TableStatus.OCCUPIED)
 
-                // Xóa đơn local
-//                clearOrder()
-
                 onSuccess()
             } catch (e: Exception) {
                 onFailure(e)
