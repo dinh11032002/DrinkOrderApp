@@ -10,6 +10,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.truongdinh.drinkorder.data.enum.OrderStatus
 import com.truongdinh.drinkorder.data.enum.TableStatus
 import com.truongdinh.drinkorder.data.model.Drink
+import com.truongdinh.drinkorder.data.model.OrderFirestore
 import com.truongdinh.drinkorder.data.repository.TableRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -88,33 +89,19 @@ class TableDetailViewModel(
         viewModelScope.launch {
             try {
                 val totalPrice = drinks.sumOf { it.price * it.quantity }
-                val orderData = hashMapOf(
-                    "tableDetailId" to tableId,
-                    "tableName" to "Bàn $tableId",
-                    "username" to username,
-                    "drinks" to drinks.map {
-                        mapOf(
-                            "id" to it.id,
-                            "name" to it.name,
-                            "quantity" to it.quantity,
-                            "note" to (it.note ?: ""),
-                            "size" to (it.size ?: ""),
-                            "price" to it.price,
-                            "image" to (it.image ?: "")
-                        )
-                    },
-                    "totalPrice" to totalPrice,
-                    "status" to OrderStatus.PROCESSING.value,
-                    "createdAt" to Timestamp.Companion.now()
+                val order = OrderFirestore(
+                    tableDetailId = tableId,
+                    tableName = "Bàn $tableId",
+                    username = username,
+                    drinks = drinks,
+                    totalPrice = totalPrice,
+                    status = OrderStatus.PROCESSING.value,
+                    createdAt = Timestamp.now()
                 )
-
-                firestore.collection("orders").add(orderData).await()
+                firestore.collection("orders").add(order).await()
 
                 // Cập nhật trạng thái bàn
                 updateTableStatus(tableId, TableStatus.OCCUPIED)
-
-                // Xóa đơn local
-//                clearOrder()
 
                 onSuccess()
             } catch (e: Exception) {
@@ -135,7 +122,7 @@ class TableDetailViewModel(
     fun loadOrderFromFirestore(tableId: Int) {
         viewModelScope.launch {
             try {
-                // ✅ Load cả Đang xử lý lẫn Hoàn thành
+                // Load cả Đang xử lý lẫn Hoàn thành
                 var snapshot = firestore.collection("orders")
                     .whereEqualTo("tableDetailId", tableId)
                     .whereEqualTo("status", OrderStatus.PROCESSING.value)
@@ -143,7 +130,7 @@ class TableDetailViewModel(
                     .get()
                     .await()
 
-                // ✅ Nếu không có Đang xử lý thì tìm Hoàn thành mới nhất
+                // Nếu không có Đang xử lý thì tìm Hoàn thành mới nhất
                 if (snapshot.isEmpty) {
                     snapshot = firestore.collection("orders")
                         .whereEqualTo("tableDetailId", tableId)
@@ -155,7 +142,7 @@ class TableDetailViewModel(
 
                 if (!snapshot.isEmpty) {
                     val order = snapshot.documents[0]
-                    _orderStatus.value = order.getString("status") // ✅ Lưu status lại
+                    _orderStatus.value = order.getString("status") // Lưu status lại
 
                     val drinks = order.get("drinks") as? List<Map<String, Any>> ?: emptyList()
                     _orderDrinks.value = drinks.map { d ->
