@@ -105,7 +105,6 @@ fun TableDetailScreen(
                     onBackClick = onBackClick
                 )
             },
-            containerColor = Color.Transparent
         ) { innerPadding ->
             Column(
                 modifier = modifier
